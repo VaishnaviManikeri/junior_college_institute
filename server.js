@@ -7,9 +7,10 @@ dotenv.config();
 
 const app = express();
 
-/* ================= CORS CONFIG (RENDER SAFE) ================= */
+/* ================= CORS CONFIG (RENDER + AUTH SAFE) ================= */
 const allowedOrigins = [
   "http://localhost:5173",
+  "https://junior-college-institute.onrender.com",
   "https://jadhavarjuniorcollege.com",
   "https://www.jadhavarjuniorcollege.com",
 ];
@@ -17,17 +18,19 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Allow server-to-server, Postman, Render health checks
+      // Allow Postman, server-to-server, health checks
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
-      // ❗ DO NOT THROW ERROR ON RENDER
+      // Do NOT block unknown origins in production
       return callback(null, true);
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -38,7 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ MongoDB Connected");
+    console.log("✅ MongoDB Connected Successfully");
   } catch (error) {
     console.error("❌ MongoDB connection error:", error.message);
     process.exit(1);
@@ -69,7 +72,6 @@ app.get("/api/health", (req, res) => {
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 5000;
 
-// IMPORTANT: bind to all interfaces
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
