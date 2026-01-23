@@ -7,30 +7,26 @@ dotenv.config();
 
 const app = express();
 
-/* ================= CORS CONFIG (RENDER + AUTH SAFE) ================= */
+/* ================= CORS CONFIG (IMPORTANT) ================= */
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://junior-college-institute.onrender.com",
-  "https://jadhavarjuniorcollege.com",
-  "https://www.jadhavarjuniorcollege.com",
+  "http://localhost:5173",                // local dev
+  "https://jadhavarjuniorcollege.com",     // production
+  "https://www.jadhavarjuniorcollege.com"  // www production
 ];
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      // Allow Postman, server-to-server, health checks
+    origin: function (origin, callback) {
+      // allow requests with no origin (like Postman)
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
+        callback(null, true);
+      } else {
+        callback(new Error("❌ Not allowed by CORS"));
       }
-
-      // Do NOT block unknown origins in production
-      return callback(null, true);
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
 
@@ -51,13 +47,17 @@ const connectDB = async () => {
 connectDB();
 
 mongoose.connection.on("disconnected", () => {
-  console.log("⚠️ MongoDB disconnected");
+  console.log("⚠️ Mongoose disconnected from DB");
 });
 
 /* ================= ROUTES ================= */
-app.use("/api/admin", require("./routes/adminRoutes"));
-app.use("/api/gallery", require("./routes/galleryRoutes"));
-app.use("/api/notices", require("./routes/noticeRoutes"));
+const adminRoutes = require("./routes/adminRoutes");
+const galleryRoutes = require("./routes/galleryRoutes");
+const noticeRoutes = require("./routes/noticeRoutes");
+
+app.use("/api/admin", adminRoutes);
+app.use("/api/gallery", galleryRoutes);
+app.use("/api/notices", noticeRoutes);
 
 /* ================= HEALTH CHECK ================= */
 app.get("/api/health", (req, res) => {
@@ -65,13 +65,12 @@ app.get("/api/health", (req, res) => {
     status: "ok",
     database:
       mongoose.connection.readyState === 1 ? "connected" : "disconnected",
-    time: new Date().toISOString(),
+    timestamp: new Date().toISOString(),
   });
 });
 
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 5000;
-
-app.listen(PORT, "0.0.0.0", () => {
+app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
