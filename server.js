@@ -2,6 +2,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
+const path = require("path");
 
 dotenv.config();
 
@@ -34,6 +35,18 @@ app.use(
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+/* ================= STATIC FILES ================= */
+// Serve static files from public directory
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
+
+// Create uploads directory if it doesn't exist
+const fs = require('fs');
+const uploadsDir = path.join(__dirname, "public/uploads/blogs");
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log("✅ Created uploads directory");
+}
 
 /* ================= DATABASE ================= */
 const connectDB = async () => {
@@ -69,8 +82,23 @@ app.get("/api/health", (req, res) => {
   });
 });
 
+/* ================= ERROR HANDLING MIDDLEWARE ================= */
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ 
+    error: "Something went wrong!",
+    message: err.message 
+  });
+});
+
+/* ================= 404 HANDLER ================= */
+app.use((req, res) => {
+  res.status(404).json({ error: "Route not found" });
+});
+
 /* ================= SERVER ================= */
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📁 Uploads directory: ${uploadsDir}`);
 });
