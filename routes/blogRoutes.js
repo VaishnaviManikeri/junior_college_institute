@@ -1,16 +1,11 @@
-const express = require("express");
-const router = express.Router();
-const auth = require("../middleware/auth");
-const ctrl = require("../controllers/blogController");
+const router = require("express").Router();
+const c = require("../controllers/blogController");
 
-/* ADMIN FIRST */
-router.post("/", auth, ctrl.createBlog);
-router.get("/admin/all", auth, ctrl.getAllBlogs);
-router.put("/:id", auth, ctrl.updateBlog);
-router.delete("/:id", auth, ctrl.deleteBlog);
-
-/* PUBLIC LAST */
-router.get("/", ctrl.getPublishedBlogs);
-router.get("/:slug", ctrl.getSingleBlog);
+router.post("/", c.createBlog);
+router.get("/", c.getBlogs);
+router.get("/admin", c.getAdminBlogs);
+router.get("/:slug", c.getBlog);
+router.put("/:id", c.updateBlog);
+router.delete("/:id", c.deleteBlog);
 
 module.exports = router;

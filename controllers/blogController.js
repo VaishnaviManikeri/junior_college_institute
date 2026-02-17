@@ -1,39 +1,43 @@
 const Blog = require("../models/Blog");
+const slugify = require("slugify");
 
-/* ADMIN */
-
+/* CREATE */
 exports.createBlog = async (req, res) => {
-  const blog = await Blog.create(req.body);
+  const slug = slugify(req.body.title, { lower: true });
+
+  const blog = await Blog.create({
+    ...req.body,
+    slug,
+  });
+
   res.json(blog);
 };
 
-exports.getAllBlogs = async (req, res) => {
-  const blogs = await Blog.find().sort({ createdAt: -1 });
+/* READ ALL */
+exports.getBlogs = async (req, res) => {
+  const blogs = await Blog.find({ status: true }).sort("-createdAt");
   res.json(blogs);
 };
 
-exports.updateBlog = async (req, res) => {
-  const blog = await Blog.findByIdAndUpdate(req.params.id, req.body, {
-    new: true,
-  });
+/* READ ONE */
+exports.getBlog = async (req, res) => {
+  const blog = await Blog.findOne({ slug: req.params.slug });
   res.json(blog);
 };
 
-exports.deleteBlog = async (req, res) => {
-  await Blog.findByIdAndDelete(req.params.id);
+/* ADMIN ALL */
+exports.getAdminBlogs = async (req, res) => {
+  res.json(await Blog.find().sort("-createdAt"));
+};
+
+/* UPDATE */
+exports.updateBlog = async (req, res) => {
+  await Blog.findByIdAndUpdate(req.params.id, req.body);
   res.json({ success: true });
 };
 
-/* PUBLIC */
-
-exports.getPublishedBlogs = async (req, res) => {
-  const blogs = await Blog.find({ isPublished: true }).sort({
-    createdAt: -1,
-  });
-  res.json(blogs);
-};
-
-exports.getSingleBlog = async (req, res) => {
-  const blog = await Blog.findOne({ slug: req.params.slug });
-  res.json(blog);
+/* DELETE */
+exports.deleteBlog = async (req, res) => {
+  await Blog.findByIdAndDelete(req.params.id);
+  res.json({ success: true });
 };

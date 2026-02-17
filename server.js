@@ -24,7 +24,6 @@ app.use(
         return callback(null, true);
       }
 
-      // allow other origins in production (safe)
       return callback(null, true);
     },
     credentials: true,
@@ -55,7 +54,7 @@ app.use("/api/gallery", require("./routes/galleryRoutes"));
 app.use("/api/notices", require("./routes/noticeRoutes"));
 app.use("/api/blogs", require("./routes/blogRoutes"));
 
-/* ================= ROOT ROUTE (IMPORTANT) ================= */
+/* ================= ROOT ROUTE ================= */
 app.get("/", (req, res) => {
   res.send("🚀 Backend is running successfully!");
 });
