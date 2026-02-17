@@ -54,6 +54,8 @@ app.use("/api/admin", require("./routes/adminRoutes"));
 app.use("/api/gallery", require("./routes/galleryRoutes"));
 app.use("/api/notices", require("./routes/noticeRoutes"));
 app.use("/api/blogs", require("./routes/blogRoutes"));
+
+/* ================= ROOT ROUTE (IMPORTANT) ================= */
 app.get("/", (req, res) => {
   res.send("🚀 Backend is running successfully!");
 });
