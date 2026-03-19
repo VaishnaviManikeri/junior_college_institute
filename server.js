@@ -72,6 +72,11 @@ app.get("/", (req, res) => {
   res.send("🚀 Backend is running successfully!");
 });
 
+/* ================= ✅ PING ROUTE (ADDED) ================= */
+app.get("/ping", (req, res) => {
+  res.send("✅ Server is alive");
+});
+
 /* ================= HEALTH CHECK ================= */
 app.get("/api/health", (req, res) => {
   res.json({
