@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const path = require("path");
+const fs = require("fs");
 
 dotenv.config();
 
@@ -37,12 +38,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 /* ================= STATIC FILES ================= */
-// Serve static files from public directory
 app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
-// Create uploads directory if it doesn't exist
-const fs = require('fs');
+/* ================= CREATE UPLOADS DIR ================= */
 const uploadsDir = path.join(__dirname, "public/uploads/blogs");
+
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log("✅ Created uploads directory");
@@ -72,9 +72,19 @@ app.get("/", (req, res) => {
   res.send("🚀 Backend is running successfully!");
 });
 
-/* ================= ✅ PING ROUTE (ADDED) ================= */
+/* ================= PING ROUTE ================= */
 app.get("/ping", (req, res) => {
   res.send("✅ Server is alive");
+});
+
+/* ================= ✅ HOSTINGER TEST API ================= */
+app.get("/api/status", (req, res) => {
+  res.json({
+    success: true,
+    message: "Backend is running on Hostinger VPS 🚀",
+    port: PORT,
+    time: new Date().toLocaleString(),
+  });
 });
 
 /* ================= HEALTH CHECK ================= */
@@ -87,12 +97,12 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-/* ================= ERROR HANDLING MIDDLEWARE ================= */
+/* ================= ERROR HANDLING ================= */
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ 
+  res.status(500).json({
     error: "Something went wrong!",
-    message: err.message 
+    message: err.message,
   });
 });
 
@@ -102,7 +112,8 @@ app.use((req, res) => {
 });
 
 /* ================= SERVER ================= */
-const PORT = process.env.PORT || 5000;
+const PORT = 5016;
+
 app.listen(PORT, "0.0.0.0", () => {
   console.log(`🚀 Server running on port ${PORT}`);
   console.log(`📁 Uploads directory: ${uploadsDir}`);
